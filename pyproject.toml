@@ -28,7 +28,7 @@ Repository = "https://github.com/Pawangunjkar/k8s-mcp"
 
 [project.scripts]
 k8s-cloud-deploy-mcp = "k8s_cloud_deploy_mcp.server:main"
-pawangunjkar-k8s-mcp = "k8s_cloud_deploy_mcp.server:main"
+k8s-mcp = "k8s_cloud_deploy_mcp.server:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -42,6 +42,4 @@ include = [
     "k8s_cloud_deploy_mcp",
     "README.md",
     "LICENSE",
-    "agensi_build/k8s-cloud-deploy-mcp-pro",
-    "scripts/build_agensi_zip.py",
 ]
