@@ -9,3 +9,6 @@ dist/
 
 # Commercial Agensi Pro Skills (Proprietary - Do not commit)
 agensi_build/
+
+# Skill packaging scripts (Proprietary - Do not commit)
+scripts/
