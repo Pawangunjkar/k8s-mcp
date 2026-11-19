@@ -6,6 +6,17 @@ The server targets standard Kubernetes, Red Hat OpenShift, and cloud-managed clu
 
 Read-only diagnostics run without a second confirmation. `k8s_trigger_deployment_rollout` and `k8s_rollback_deployment` return a plan until the caller sets `confirm=true` after the user approves it. Image updates must be `sha256` digests. The tag `latest` is rejected. Secret values are never returned.
 
+## 🚀 Hosted Cloud (MCPize.com) & Pro Agent Skill Bundles (Agensi.io)
+
+Run locally over `stdio` or subscribe to managed cloud endpoints on **[MCPize.com](https://mcpize.com)** paired with production `SKILL.md` playbooks on **[Agensi.io](https://agensi.io)**:
+
+| Tier | Offering | Cloud Runtime ([MCPize.com](https://mcpize.com)) | Pro Playbook ([Agensi.io](https://agensi.io)) | What's Included |
+| :--- | :--- | :---: | :---: | :--- |
+| **Free Demo** | Starter Access | `$0` *(25 read-only calls/mo)* | `github-mcp-lite` (`$0`) | Free read-only trial tier |
+| **Individual Pro** *(This Repo)* | **`k8s-mcp`** | **`$19/mo`** *(`pawangunjkar-k8s-mcp`)* | `k8s-cloud-deploy-mcp-pro` (`$19`) | All **23 K8s/OpenShift/EKS/AKS/GKE tools** + 5 rollout & triage playbooks |
+| **3-in-1 Bundles** *(All Include K8s!)* | **Cloud-Native DevOps** \| **Enterprise Release** \| **SRE Triage** | **`$39/mo`** each | Bundles 1, 2, 3 (`$39`) | `github+k8s+obs` (118) \| `jenkins+artifact+k8s` (88) \| `k8s+obs+ssh` (100 tools) |
+| **6-in-1 Master Suite** | **Enterprise SDLC Orchestrator** *(Saves 37%)* | **`$69/mo`** *(`pawangunjkar-enterprise-sdlc-suite`)* | `enterprise-sdlc-orchestrator` (`$69`) | **All 6 MCP servers unified (245 tools)** + end-to-end SDLC/SRE workflows |
+
 ## Project information
 
 | Item | Value |

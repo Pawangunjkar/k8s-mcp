@@ -1,0 +1,44 @@
+version: 1
+name: pawangunjkar-k8s-mcp
+description: "Multi-cloud Kubernetes & Red Hat OpenShift MCP server with 23 tools across EKS, AKS, GKE, and OpenShift: cluster audits, DeploymentConfig & Route governance, CrashLoopBackOff/OOMKilled pod triage, sha256 digest rollouts, and confirmation-gated rollback."
+runtime: python
+entry: k8s_cloud_deploy_mcp/server.py
+
+startCommand:
+  type: http
+  command: python -m k8s_cloud_deploy_mcp.server --http
+
+credentials_mode: per_user
+credentials:
+  - name: KUBECONFIG
+    description: "Optional path to kubeconfig file inside the container or runtime environment; omit for in-cluster service account or k8s_connect."
+    required: false
+    placeholder: "/tmp/kubeconfig"
+  - name: K8S_CONTEXT
+    description: "Target kubeconfig context name."
+    required: false
+    placeholder: "prod-eks-cluster"
+  - name: K8S_NAMESPACE
+    description: "Default Kubernetes namespace or OpenShift project (default: default)."
+    required: false
+    placeholder: "default"
+  - name: CLOUD_PROVIDER
+    description: "Explicit provider override: aws_eks, azure_aks, gcp_gke, openshift, or generic_k8s."
+    required: false
+    placeholder: "openshift"
+  - name: AWS_REGION
+    description: "AWS region hint for EKS clusters (e.g., us-east-1)."
+    required: false
+    placeholder: "us-east-1"
+  - name: AZURE_SUBSCRIPTION_ID
+    description: "Azure subscription ID for AKS cluster context."
+    required: false
+    placeholder: "00000000-0000-0000-0000-000000000000"
+  - name: GCP_PROJECT
+    description: "Google Cloud project ID for GKE cluster context."
+    required: false
+    placeholder: "my-gcp-project"
+  - name: K8S_SESSION
+    description: "Default session name registered by bootstrap (default: default)."
+    required: false
+    placeholder: "default"

@@ -2,6 +2,9 @@ __pycache__/
 *.py[cod]
 .venv/
 .env
+.env.*
+!.env.example
+credentials.json
 dist/
 *.egg-info/
 .pytest_cache/
@@ -16,4 +19,8 @@ scripts/
 # Commercial Agensi Files & Distribution
 agensi_packages/
 _agensi_commercial_dist/
+_mcpize_bundles/
 dist/*.zip
+
+# MCPize CLI state
+.mcpize/
