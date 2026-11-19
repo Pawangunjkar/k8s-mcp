@@ -4,6 +4,9 @@ description: "Multi-cloud Kubernetes & Red Hat OpenShift MCP server with 23 tool
 runtime: python
 entry: k8s_cloud_deploy_mcp/server.py
 
+build:
+  command: python -m py_compile server.py
+
 startCommand:
   type: http
   command: python -m k8s_cloud_deploy_mcp.server --http
