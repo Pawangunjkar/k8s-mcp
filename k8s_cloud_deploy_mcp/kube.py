@@ -26,6 +26,7 @@ from k8s_cloud_deploy_mcp.guards import (
     clamp_tail,
     validate_container_name,
     validate_label_selector,
+    validate_manifest_images,
     validate_namespace,
     validate_resource_name,
 )
@@ -54,6 +55,29 @@ class K8sSession:
     infrastructure: str
     config_source: str
     server_host: str
+
+
+def event_time(item) -> "datetime":
+    """Best timestamp for an event: lastTimestamp, eventTime, firstTimestamp, then creation time."""
+    from datetime import datetime, timezone
+
+    for value in (
+        getattr(item, "last_timestamp", None),
+        getattr(item, "event_time", None),
+        getattr(item, "first_timestamp", None),
+        getattr(getattr(item, "metadata", None), "creation_timestamp", None),
+    ):
+        if isinstance(value, datetime):
+            return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+    return datetime.min.replace(tzinfo=timezone.utc)
+
+
+def _iso(value) -> str | None:
+    from datetime import datetime, timezone
+
+    if value == datetime.min.replace(tzinfo=timezone.utc):
+        return None
+    return value.isoformat()
 
 
 def _api_message(exc: Exception) -> str:
@@ -773,11 +797,45 @@ class K8sHub:
         session = self.session(session_name)
         ns = validate_namespace(namespace) if namespace else session.namespace
         events = session.core.list_namespaced_event(ns, _request_timeout=REQUEST_TIMEOUT)
+        # The API does not return events in time order; sort so "latest 30" really is the newest.
+        ordered = sorted(events.items, key=event_time)
         rows = [
-            {"reason": item.reason, "message": item.message, "object": item.involved_object.name, "type": item.type}
-            for item in events.items[-30:]
+            {
+                "time": _iso(event_time(item)),
+                "type": item.type,
+                "reason": item.reason,
+                "object": item.involved_object.name if item.involved_object else None,
+                "count": item.count,
+                "message": item.message,
+            }
+            for item in ordered[-30:]
         ]
         return json.dumps(rows, indent=2)
+
+    def secret_names(self, session_name: str, namespace: str) -> list[str]:
+        """List Secret names using metadata-only responses, so secret values never leave the API server."""
+        session = self.session(session_name)
+        ns = validate_namespace(namespace) if namespace else session.namespace
+        try:
+            data = session.api_client.call_api(
+                "/api/v1/namespaces/{namespace}/secrets",
+                "GET",
+                path_params={"namespace": ns},
+                header_params={"Accept": "application/json;as=PartialObjectMetadataList;v=v1;g=meta.k8s.io"},
+                response_type="object",
+                auth_settings=["BearerToken"],
+                _return_http_data_only=True,
+                _preload_content=True,
+                _request_timeout=REQUEST_TIMEOUT,
+            )
+            items = (data or {}).get("items") or []
+            if (data or {}).get("kind") == "PartialObjectMetadataList":
+                return sorted(item.get("metadata", {}).get("name", "") for item in items)
+        except ApiException:
+            pass
+        # Old API servers without metadata-only support: fall back to a normal list, names only.
+        listed = session.core.list_namespaced_secret(ns, _request_timeout=REQUEST_TIMEOUT)
+        return sorted(item.metadata.name for item in listed.items)
 
     def list_deployments(self, session_name: str, namespace: str) -> str:
         session = self.session(session_name)
@@ -864,6 +922,7 @@ class K8sHub:
                 session.core.create_namespaced_config_map(ns, doc, _request_timeout=REQUEST_TIMEOUT)
                 return f"Created ConfigMap {ns}/{name}."
         if kind == "Deployment":
+            validate_manifest_images(doc)
             try:
                 session.apps.patch_namespaced_deployment(
                     name,

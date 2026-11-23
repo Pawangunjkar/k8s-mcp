@@ -87,6 +87,34 @@ def validate_image_reference(image_tag: str) -> str:
     )
 
 
+def validate_manifest_images(doc: dict) -> None:
+    """Reject Deployment manifests whose containers use the floating `latest` tag or no tag at all.
+
+    Applying a manifest must follow the same rule as k8s_trigger_deployment_rollout:
+    an untagged image silently means `latest`, which makes rollouts non-reproducible.
+    """
+    spec = ((doc.get("spec") or {}).get("template") or {}).get("spec") or {}
+    containers = list(spec.get("containers") or []) + list(spec.get("initContainers") or [])
+    for container in containers:
+        image = str((container or {}).get("image") or "").strip()
+        name = (container or {}).get("name") or "?"
+        if not image:
+            raise ValueError(f"Container '{name}' has no image.")
+        if _UNSAFE_IMAGE.search(image):
+            raise ValueError(f"Container '{name}' image contains unsupported characters.")
+        if "@sha256:" in image:
+            continue
+        if _LATEST.search(image):
+            raise ValueError(
+                f"Container '{name}' uses the mutable tag latest ({image}). Pin a version tag or a sha256 digest."
+            )
+        last_segment = image.rsplit("/", 1)[-1]
+        if ":" not in last_segment:
+            raise ValueError(
+                f"Container '{name}' image {image} has no tag, which means latest. Pin a version tag or a sha256 digest."
+            )
+
+
 def strip_tag(image: str) -> str:
     """Drop a tag or digest and keep a registry port, such as registry:5000/app."""
     without_digest = (image or "").split("@", 1)[0]

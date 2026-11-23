@@ -327,12 +327,9 @@ def k8s_list_nodes(session_name: str = "default") -> str:
 
 @mcp.tool()
 def k8s_list_secret_names(namespace: str = "", session_name: str = "default") -> str:
-    """List Secret names only. Values are not returned."""
+    """List Secret names only. Values are never returned (metadata-only API request)."""
     try:
-        session = hub.session(session_name)
-        ns = namespace or session.namespace
-        items = session.core.list_namespaced_secret(ns)
-        return json.dumps([item.metadata.name for item in items.items], indent=2)
+        return json.dumps(hub.secret_names(session_name, namespace), indent=2)
     except Exception as exc:
         return f"Error: {exc}"
 
@@ -368,7 +365,11 @@ def k8s_delete_pod(pod: str, namespace: str = "", confirm: bool = False, session
 
 @mcp.tool()
 def k8s_apply(manifest_yaml: str, session_name: str = "default") -> str:
-    """Create or patch a Deployment or ConfigMap from a single YAML document. Secret manifests are refused."""
+    """Create or patch a Deployment or ConfigMap from a single YAML document.
+
+    Secret manifests are refused. Deployment images must carry a version tag or a
+    sha256 digest; the floating `latest` tag and untagged images are rejected.
+    """
     try:
         return hub.apply_manifest(session_name, manifest_yaml)
     except Exception as exc:
