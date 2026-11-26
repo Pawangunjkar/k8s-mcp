@@ -14,8 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 COPY pyproject.toml README.md LICENSE* ./
-COPY server.py k8s_client.py ./
-COPY k8s_cloud_deploy_mcp/ ./k8s_cloud_deploy_mcp/
+COPY src ./src
 
 RUN pip install --no-cache-dir . \
     && groupadd -r appuser \

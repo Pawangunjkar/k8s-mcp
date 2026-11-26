@@ -2,10 +2,10 @@ version: 1
 name: pawangunjkar-k8s-mcp
 description: "Multi-cloud Kubernetes & Red Hat OpenShift MCP server with 23 tools across EKS, AKS, GKE, and OpenShift: cluster audits, DeploymentConfig & Route governance, CrashLoopBackOff/OOMKilled pod triage, sha256 digest rollouts, and confirmation-gated rollback."
 runtime: python
-entry: k8s_cloud_deploy_mcp/server.py
+entry: src/k8s_cloud_deploy_mcp/server.py
 
 build:
-  command: python -m py_compile server.py
+  command: pip install --no-deps . && python -m py_compile src/k8s_cloud_deploy_mcp/*.py
 
 startCommand:
   type: http

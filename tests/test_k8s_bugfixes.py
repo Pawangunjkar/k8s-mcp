@@ -19,8 +19,9 @@ from unittest import mock
 os.environ["K8S_DISABLE_AUTOCONNECT"] = "1"
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 from kubernetes.client import ApiException  # noqa: E402
 

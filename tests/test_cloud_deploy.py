@@ -16,8 +16,9 @@ from types import SimpleNamespace
 os.environ["K8S_DISABLE_AUTOCONNECT"] = "1"
 
 ROOT = Path(__file__).resolve().parents[1]
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
+SRC = ROOT / "src"
+if str(SRC) not in sys.path:
+    sys.path.insert(0, str(SRC))
 
 from k8s_cloud_deploy_mcp.cli import rollout_status_argv
 from k8s_cloud_deploy_mcp.cloud import (
@@ -232,7 +233,7 @@ class PackageTests(unittest.TestCase):
         self.assertTrue(BUILD.scan_python("import subprocess\nsubprocess.run(['kubectl'], shell=True)\n", allow_subprocess=True))
         self.assertTrue(BUILD.scan_python("eval('1')\n", allow_subprocess=False))
         self.assertTrue(BUILD.scan_credentials('token = "supersecretvalue"\n'))
-        self.assertFalse(BUILD.scan_python((ROOT / "k8s_cloud_deploy_mcp" / "cli.py").read_text(encoding="utf-8"), allow_subprocess=True))
+        self.assertFalse(BUILD.scan_python((SRC / "k8s_cloud_deploy_mcp" / "cli.py").read_text(encoding="utf-8"), allow_subprocess=True))
 
     def test_verify_env_and_zip(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
